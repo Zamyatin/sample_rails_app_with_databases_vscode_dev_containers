@@ -14,17 +14,26 @@ services:
         - INSTALL_NODE=false
         - NODE_VERSION='lts/*'
     depends_on: 
-      - pg_db
+      - user_service_db
+      - elasticsearch
+      - redis
+    links: 
+      - user_service_db:user_service_db
+      - redis:redis
+      - elasticsearch:elasticsearch
     environment: 
-      - RAILS_ENV=development
       - POSTGRES_PASSWORD=happyfunball
+      - RAILS_ENV=development
+      - RAILS_MAX_THREADS=5
     volumes:
       - .:/workspace:cached
     command: /bin/sh -c "while sleep 1000; do :; done"
     networks: 
       - trailblazer_dev
+    ports: 
+      - 3000:3000
 
-  pg_db:
+  user_service_db:
     image: postgres:13-alpine
     environment: 
       - "POSTGRES_PASSWORD=happyfunball"
@@ -41,12 +50,12 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     depends_on: 
-      - pg_db
+      - user_service_db
     environment: 
       - 'PGADMIN_DEFAULT_EMAIL=raj@foreversingh.com'
       - 'PGADMIN_DEFAULT_PASSWORD=OKLetMeIn'
     links: 
-      - pg_db:pg_db
+      - user_service_db:user_service_db
     networks: 
       - trailblazer_dev
     ports: 
