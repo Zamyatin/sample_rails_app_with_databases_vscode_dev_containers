@@ -26,7 +26,11 @@
 	"extensions": [
 		"rebornix.ruby",
 		"wingrunr21.vscode-ruby",
-		"ms-azuretools.vscode-docker"
+		"ms-azuretools.vscode-docker",
+		"bung87.rails",
+		"github.vscode-pull-request-github",
+		"misogi.ruby-rubocop",
+		"castwide.solargraph"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
