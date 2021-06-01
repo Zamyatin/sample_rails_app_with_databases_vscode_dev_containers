@@ -1,0 +1,76 @@
+version: '3.4'
+
+networks: 
+  trailblazer_dev:
+
+services:
+  user_service:
+    user: vscode
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+      args: 
+        - VARIANT=3.0
+        - INSTALL_NODE=false
+        - NODE_VERSION='lts/*'
+    depends_on: 
+      - pg_db
+    environment: 
+      - RAILS_ENV=development
+      - POSTGRES_PASSWORD=happyfunball
+    volumes:
+      - .:/workspace:cached
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    networks: 
+      - trailblazer_dev
+
+  pg_db:
+    image: postgres:13-alpine
+    environment: 
+      - "POSTGRES_PASSWORD=happyfunball"
+    networks: 
+      - trailblazer_dev
+    ports: 
+      - 5432:5432
+
+  redis:
+    image: redis:6.2-alpine
+    networks: 
+      - trailblazer_dev
+
+  pgadmin:
+    image: dpage/pgadmin4
+    depends_on: 
+      - pg_db
+    environment: 
+      - 'PGADMIN_DEFAULT_EMAIL=raj@foreversingh.com'
+      - 'PGADMIN_DEFAULT_PASSWORD=OKLetMeIn'
+    links: 
+      - pg_db:pg_db
+    networks: 
+      - trailblazer_dev
+    ports: 
+      - 5150:80
+  
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.0
+    environment: 
+      - discovery.type=single-node
+    networks: 
+      - trailblazer_dev
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.13.0
+    depends_on: 
+      - elasticsearch
+    environment: 
+      - ELASTICSEARCH_HOST=http://elasticsearch:9200
+    links: 
+      - elasticsearch:elasticsearch
+    networks: 
+      - trailblazer_dev
+    ports:
+      - 5601:5601
